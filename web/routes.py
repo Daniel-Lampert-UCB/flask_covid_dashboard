@@ -13,11 +13,16 @@ import json
 #loading data
 total_confirmed, total_death, total_recovered, df_pop = utils.load_data()
 
+
 (grouped_total_confirmed, grouped_total_recovered,
  grouped_total_death, timeseries_final, country_names) = utils.preprocessed_data(total_confirmed, total_death, total_recovered)
 
 final_df = utils.merge_data(grouped_total_confirmed,
                             grouped_total_recovered, grouped_total_death, df_pop)
+
+#defined by daniel
+a, vax_cases_by_man, c, d = utils.pull_data()
+vax_cases_by_man = utils.prepprocess_data(vax_cases_by_man)
 
 #for chart_js map
 
@@ -101,8 +106,7 @@ def plot_country():
     plotly_country_plot = plotly_plot.plotly_per_country_time_series(total_confirmed, 
                                                             total_death, total_recovered, country_name)
     #altair
-    altair_country_plot = altair_plot.altair_per_country_time_series(total_confirmed, 
-                                                            total_death, total_recovered, country_name)
+    altair_country_plot = altair_plot.altair_per_country_time_series(vax_cases_by_man)
     #chart.js variable
     timeseries_country = utils.get_by_country_merged(
         total_confirmed, total_death, total_recovered, country_name)
