@@ -149,65 +149,87 @@ def altair_geo_analysis(final_df):
 
 
 
-def altair_per_country_time_series(total_confirmed, total_death, total_recovered, country_name):
-    #Plot Altair 6a; per_country time series chart for daily new cases, recovered, and deaths - version 3 (more fancy selector)
-    # I use US data
+def altair_per_country_time_series(vax_data_man):
+    "returns json for time series vaccinations"
+    input_dropdown = alt.binding_select(options=['Germany','Iceland','Italy',
+                                             'Czechia', 'Latvia', 'Lithuania', 'Chile', 'United States'])
+    selection = alt.selection_single(fields=['location'], bind=input_dropdown, name='location')
+    color = alt.condition(selection,
+                    alt.Color('vaccine:N'),
+                    alt.value('lightgray'))
 
-    #declare data and initialization
-    data = get_by_country_merged(
-        total_confirmed, total_death, total_recovered, country_name)
-    #column name: date	value_confirmed	daily_new_confirmed	value_death	daily_new_death	value_recovered	daily_new_recovered
-
-    #specifying form of data; read: https://altair-viz.github.io/user_guide/data.html#long-form-vs-wide-form-data
-    base = alt.Chart(data).transform_fold(
-        ['daily_new_confirmed', 'daily_new_recovered', 'daily_new_death']
-    )
-
-    # Create a selection that chooses the nearest point & selects based on x-value
-    nearest = alt.selection(type='single', nearest=True, on='mouseover',
-                            fields=['date'], empty='none')
-
-    # The basic line
-    line = base.mark_line().encode(
-        x='date:T',
-        y=alt.Y('value:Q', axis=alt.Axis(title='# of cases')),
-        color='key:N',
-
-    )
-
-    # Transparent selectors across the chart. This is what tells us
-    # the x-value of the cursor
-    selectors = base.mark_point().encode(
-        x='date:T',
-        opacity=alt.value(0),
-        tooltip=[alt.Tooltip('yearmonthdate(date)', title="Date")]
-    ).add_selection(
-        nearest
-    )
-
-    # Draw points on the line, and highlight based on selection
-    points = line.mark_point().encode(
-        opacity=alt.condition(nearest, alt.value(1), alt.value(0))
-    )
-
-    # Draw text labels near the points, and highlight based on selection
-    text = line.mark_text(align='left', dx=5, dy=-5).encode(
-        text=alt.condition(nearest, 'value:Q', alt.value(' '))
-    )
-
-    # Draw a rule at the location of the selection
-    rules = alt.Chart(data).mark_rule(color='gray').encode(
-        x='date:T',
-
+    chart = alt.Chart(vax_data_man, title = "Vaccination by Manufacturer").mark_line().encode(
+    x=alt.X('date:T'),
+    y=alt.Y('percent_vaxes:Q'),
+    color = color,
+    tooltip='date:T'
+        ).add_selection(
+    selection
     ).transform_filter(
-        nearest
+    selection
+    ).properties(
+    width=500,
+    height=350
     )
+    return chart.to_json()
+    # #Plot Altair 6a; per_country time series chart for daily new cases, recovered, and deaths - version 3 (more fancy selector)
+    # # I use US data
 
-    # Put the five layers into a chart and bind the data
-    chart = alt.layer(
-        line, selectors, points, rules, text
-    ).properties(width=1300, height=400, title=f'{country_name} daily cases')
-    chart_json = chart.to_json()
-    return chart_json
+    # #declare data and initialization
+    # data = get_by_country_merged(
+    #     total_confirmed, total_death, total_recovered, country_name)
+    # #column name: date	value_confirmed	daily_new_confirmed	value_death	daily_new_death	value_recovered	daily_new_recovered
+
+    # #specifying form of data; read: https://altair-viz.github.io/user_guide/data.html#long-form-vs-wide-form-data
+    # base = alt.Chart(data).transform_fold(
+    #     ['daily_new_confirmed', 'daily_new_recovered', 'daily_new_death']
+    # )
+
+    # # Create a selection that chooses the nearest point & selects based on x-value
+    # nearest = alt.selection(type='single', nearest=True, on='mouseover',
+    #                         fields=['date'], empty='none')
+
+    # # The basic line
+    # line = base.mark_line().encode(
+    #     x='date:T',
+    #     y=alt.Y('value:Q', axis=alt.Axis(title='# of cases')),
+    #     color='key:N',
+
+    # )
+
+    # # Transparent selectors across the chart. This is what tells us
+    # # the x-value of the cursor
+    # selectors = base.mark_point().encode(
+    #     x='date:T',
+    #     opacity=alt.value(0),
+    #     tooltip=[alt.Tooltip('yearmonthdate(date)', title="Date")]
+    # ).add_selection(
+    #     nearest
+    # )
+
+    # # Draw points on the line, and highlight based on selection
+    # points = line.mark_point().encode(
+    #     opacity=alt.condition(nearest, alt.value(1), alt.value(0))
+    # )
+
+    # # Draw text labels near the points, and highlight based on selection
+    # text = line.mark_text(align='left', dx=5, dy=-5).encode(
+    #     text=alt.condition(nearest, 'value:Q', alt.value(' '))
+    # )
+
+    # # Draw a rule at the location of the selection
+    # rules = alt.Chart(data).mark_rule(color='gray').encode(
+    #     x='date:T',
+
+    # ).transform_filter(
+    #     nearest
+    # )
+
+    # # Put the five layers into a chart and bind the data
+    # chart = alt.layer(
+    #     line, selectors, points, rules, text
+    # ).properties(width=1300, height=400, title=f'{country_name} daily cases')
+    # chart_json = chart.to_json()
+    # return chart_json
 
 
