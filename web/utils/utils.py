@@ -4,6 +4,52 @@ from datetime import datetime,timedelta, date
 import pandas as pd
 import json
 
+def pull_data():
+    "Pulls data from github." #defined by daniel
+    import numpy as np
+    import pandas as pd
+    urllist = ['https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/us_state_vaccinations.csv', #url list to pull data
+           'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/vaccinations-by-manufacturer.csv',
+           'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv',
+           'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/vaccinations.csv']
+    csv_name_list = df_names = ['us_covid_vaccinations', 'vaccinations_by_manufacturer', 'owid_covid_latest',
+            'vaccinations']
+    dataframes = []
+    for url, name in zip(urllist, csv_name_list):
+        name = pd.read_csv(url)
+        dataframes.append(name)
+    us_covid_vaccinations, vaccinations_by_manufacturer, owid_covid_latest, vaccinations = dataframes[0], dataframes[1], dataframes[2], dataframes[3]
+    #in future can add visualizations
+    return us_covid_vaccinations, vaccinations_by_manufacturer, owid_covid_latest, vaccinations
+
+def prepprocess_data(vaccinations_by_manufacturer):
+    "Preprocesses vax data"
+    def add_pop(data): #adds population
+        if data == "Chile":
+            return 18950000
+        elif data == 'Czechia':
+            return 10650000
+        elif data == "Germany":
+            return 83020000
+        elif data == "Iceland":
+            return 356991
+        elif data == 'Italy':
+            return 60360000
+        elif data == 'Latvia':
+            return 1920000
+        elif data == 'Lithuania':
+            return 2974000
+        else:
+            return 328200000
+    vaccinations_by_manufacturer['population'] = vaccinations_by_manufacturer['location'].apply(add_pop)
+    vaccinations_by_manufacturer['percent_vaxes'] = vaccinations_by_manufacturer['total_vaccinations']/vaccinations_by_manufacturer['population']
+    vaccinations_by_manufacturer['date']= pd.to_datetime(vaccinations_by_manufacturer['date'])
+    vaccinations_by_manufacturer['year'] = pd.DatetimeIndex(vaccinations_by_manufacturer['date']).year
+    vaccinations_by_manufacturer['month'] = pd.DatetimeIndex(vaccinations_by_manufacturer['date']).month
+    vaccinations_by_manufacturer['day'] = pd.DatetimeIndex(vaccinations_by_manufacturer['date']).day
+    return vaccinations_by_manufacturer
+    
+
 
 def load_chartjs_map_data(final_df, df_pop):
   # ref : https://www.highcharts.com/demo/maps/tooltip
