@@ -22,7 +22,7 @@ def pull_data():
     #in future can add visualizations
     return us_covid_vaccinations, vaccinations_by_manufacturer, owid_covid_latest, vaccinations
 
-def prepprocess_data(vaccinations_by_manufacturer):
+def prepprocess_data_vaccinations_by_man(vaccinations_by_manufacturer):
     "Preprocesses vax data"
     def add_pop(data): #adds population
         if data == "Chile":
@@ -48,6 +48,44 @@ def prepprocess_data(vaccinations_by_manufacturer):
     vaccinations_by_manufacturer['month'] = pd.DatetimeIndex(vaccinations_by_manufacturer['date']).month
     vaccinations_by_manufacturer['day'] = pd.DatetimeIndex(vaccinations_by_manufacturer['date']).day
     return vaccinations_by_manufacturer
+
+def get_total_vaccines(vaccinations):
+    "Gets total vaccinations for a few days ago"
+    from datetime import datetime, timedelta
+    day_before_yesterday = datetime.now() - timedelta(2)
+    day_before_yesterday = datetime.strftime(day_before_yesterday, '%Y-%m-%d')
+    recent_vaccines = vaccinations[vaccinations['date']== day_before_yesterday]
+    desired_locations = ['Africa', 'Asia', 'Europe', 
+    'South America', 'North America', 'Oceania'] 
+    recent_vacines = recent_vaccines.loc[recent_vaccines['location'].isin(desired_locations)]
+    return max(recent_vaccines['total_vaccinations'])
+
+def total_cases(owid_covid_latest):
+    "Gives Total COVID Cases in World"
+    from datetime import datetime, timedelta
+    day_before_yesterday = datetime.now() - timedelta(2)
+    day_before_yesterday = datetime.strftime(day_before_yesterday, '%Y-%m-%d')
+    desired_locations = ['Africa', 'Asia', 'Europe', 
+    'South America', 'North America', 'Oceania']
+    cases = owid_covid_latest.loc[owid_covid_latest['location'].isin(desired_locations)]
+    cases = cases[cases['date']== day_before_yesterday]
+    #total_cases = sum(cases['total_cases'])
+    #total_deaths = sum(cases['total_deaths'])
+    return sum(cases['total_cases'])
+
+def total_death(owid_covid_latest):
+    "Gets Total deaths"
+    from datetime import datetime, timedelta
+    day_before_yesterday = datetime.now() - timedelta(2)
+    day_before_yesterday = datetime.strftime(day_before_yesterday, '%Y-%m-%d')
+    desired_locations = ['Africa', 'Asia', 'Europe', 
+    'South America', 'North America', 'Oceania']
+    cases = owid_covid_latest.loc[owid_covid_latest['location'].isin(desired_locations)]
+    cases = cases[cases['date']== day_before_yesterday]
+    return sum(cases['total_deaths'])
+
+
+
     
 
 
