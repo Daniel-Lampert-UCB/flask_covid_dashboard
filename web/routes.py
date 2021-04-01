@@ -21,28 +21,35 @@ final_df = utils.merge_data(grouped_total_confirmed,
                             grouped_total_recovered, grouped_total_death, df_pop)
 
 #defined by daniel
-a, vax_cases_by_man, c, d = utils.pull_data()
-vax_cases_by_man = utils.prepprocess_data(vax_cases_by_man)
+# Load all data
+us_covid_vaccinations, vaccinations_by_manufacturer, owid_covid_latest, vaccinations = utils.pull_data()
+#pre-process vacinations by manufacturer
+vax_cases_by_man = utils.prepprocess_data_vaccinations_by_man(vaccinations_by_manufacturer)
+#Get most recent date to find total vaccines in world
+total_vaccines = utils.get_total_vaccines(vaccinations)
+#total cases in world
+total_cases = utils.total_cases(owid_covid_latest)
+#Total deaths in world
+deaths = utils.total_death(owid_covid_latest)
+
+
 
 #for chart_js map
-
-
 
 @app.route("/")
 @app.route("/plotly")
 def plot_plotly_global():
     # total confirmed cases globally
-    total_all_confirmed = total_confirmed[total_confirmed.columns[-1]].sum()
-    total_all_recovered = total_recovered[total_recovered.columns[-1]].sum()
-    total_all_deaths = total_death[total_death.columns[-1]].sum()
+    #total_all_recovered = total_recovered[total_recovered.columns[-1]].sum()
+    #total_all_deaths = total_death[total_death.columns[-1]].sum()
     #ploting
     plot_global_cases_per_country = plotly_plot.plotly_global_cases_per_country(
         final_df)
     plot_global_time_series = plotly_plot.plotly_global_timeseries(
         timeseries_final)
     plot_geo_analysis = plotly_plot.plotly_geo_analysis(final_df)
-    context = {"total_all_confirmed": total_all_confirmed,
-               "total_all_recovered": total_all_recovered, "total_all_deaths": total_all_deaths,
+    context = {"total_all_confirmed": total_cases,
+               "total_death": deaths, "total_all_vaccines": total_vaccines,
             'plot_global_cases_per_country': plot_global_cases_per_country,
             'plot_global_time_series': plot_global_time_series,'plot_geo_analysis': plot_geo_analysis}
     return render_template('plotly.html', context=context)
