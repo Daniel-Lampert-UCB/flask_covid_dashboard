@@ -48,8 +48,8 @@ def plot_plotly_global():
     plot_global_time_series = plotly_plot.plotly_global_timeseries(
         timeseries_final)
     plot_geo_analysis = plotly_plot.plotly_geo_analysis(final_df)
-    context = {"total_all_confirmed": total_cases,
-               "total_death": deaths, "total_all_vaccines": total_vaccines,
+    context = {"total_all_confirmed": int(total_cases),
+               "total_death": int(deaths), "total_all_vaccines": int(total_vaccines),
             'plot_global_cases_per_country': plot_global_cases_per_country,
             'plot_global_time_series': plot_global_time_series,'plot_geo_analysis': plot_geo_analysis}
     return render_template('plotly.html', context=context)
