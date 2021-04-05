@@ -14,34 +14,34 @@ import plotly.express as px
 import json
 from web.utils.utils import get_by_country_merged
 
-def altair_global_cases_per_country(final_df):
-    # Plot Altair 1: Per country total cases and cases/million populations
-    # Only plotting 100 countries
-    source = final_df.iloc[:75]
+def altair_global_cases_per_country(vax_data_by_man):
+    "Bar Chart of Days"
+    delta_days = []
+    for row in vax_data_by_man['date']:
+        delta_day = (row - min(vax_data_by_man['date'])).days
+        delta_days.append(delta_day)
+    vax_data_by_man = vax_data_by_man.assign(delta_days = delta_days)
+    slider = alt.binding_range(min=0, max=max(vax_data_by_man['delta_days']), step = 1)
 
-    #base configuration
-    base = alt.Chart(source).encode(
-        alt.X('Country/Region:N', sort=None), tooltip=['Country/Region', 'confirmed', 'cases/million']
-    ).properties(height=500,
-        title='Total Confirmed Cases/Country (75 countries)'
+    selector = alt.selection_single(name = 'delta_days', fields = ['delta_days'],
+                               bind=slider, init={'delta_days': 0})
+    chart =  alt.Chart(vax_data_by_man, title = "Percent Vaccinated by Manufacturer over Time").mark_bar().encode(
+        x='location',
+        y=alt.Y('sum(percent_vaxes)', title = "Percent Vaccinated"),
+        color=alt.Color('vaccine:N')
+        ).properties(
+        width=500,
+        height=350
+    ).add_selection(
+    selector
+    ).transform_filter(
+    selector
+    ).configure_facet(
+    spacing=10
     )
-
-    #bar chart
-    bar = base.mark_bar(color='#5276A7').encode(
-        alt.Y('confirmed:Q', axis=alt.Axis(titleColor='#5276A7'))
-    )
-    #point for cases/million and its axis
-    point = base.mark_circle(size=60, color='red').encode(
-        alt.Y('cases/million:Q', axis=alt.Axis(titleColor='red'))
-    )
+    return chart.to_json()
     
-    #merge the plot
-    chart = alt.layer(bar, point).resolve_scale(y='independent')
-
-
-    chart_json = chart.to_json()
-    return chart_json
-
+  
 
 def altair_global_time_series(timeseries_final):
     #Plot Altair 6; Global time series chart for daily new cases, recovered, and deaths - version 3 (more fancy selector)
