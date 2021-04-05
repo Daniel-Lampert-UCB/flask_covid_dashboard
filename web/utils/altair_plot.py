@@ -30,7 +30,7 @@ def altair_global_cases_per_country(vax_data_by_man):
         y=alt.Y('sum(percent_vaxes)', title = "Percent Vaccinated"),
         color=alt.Color('vaccine:N')
         ).properties(
-        width=500,
+        width=600,
         height=350
     ).add_selection(
     selector
@@ -158,9 +158,9 @@ def altair_per_country_time_series(vax_data_man):
                     alt.Color('vaccine:N'),
                     alt.value('lightgray'))
 
-    chart = alt.Chart(vax_data_man, title = "Vaccination by Manufacturer").mark_line().encode(
-    x=alt.X('date:T'),
-    y=alt.Y('percent_vaxes:Q'),
+    chart = alt.Chart(vax_data_man, title = "Percent of Population Vaccinated by Vaccine Type").mark_line().encode(
+    x=alt.X('date:T', title= "Date"),
+    y=alt.Y('percent_vaxes:Q', title = 'Percent of Population Vaccinated'),
     color = color,
     tooltip='date:T'
         ).add_selection(
@@ -168,68 +168,68 @@ def altair_per_country_time_series(vax_data_man):
     ).transform_filter(
     selection
     ).properties(
-    width=500,
+    width=700,
     height=350
     )
     return chart.to_json()
-    # #Plot Altair 6a; per_country time series chart for daily new cases, recovered, and deaths - version 3 (more fancy selector)
-    # # I use US data
+    
+    # add charts for Global Cases and Deaths Page
+def country_deaths(df):
+    alt.data_transformers.enable('default', max_rows=None)
+    k =alt.Chart(df).mark_bar().encode(
+    alt.X('location:N', sort = '-y'),
+    alt.Y('new_deaths_per_million:Q'),
+    color = 'location'
+    ).interactive()
+    return k.to_json()
 
-    # #declare data and initialization
-    # data = get_by_country_merged(
-    #     total_confirmed, total_death, total_recovered, country_name)
-    # #column name: date	value_confirmed	daily_new_confirmed	value_death	daily_new_death	value_recovered	daily_new_recovered
+def hdi_hospital(df):
+    alt.data_transformers.enable('default', max_rows=None)
+    k =alt.Chart(df).mark_bar().encode(
+        x = 'human_development_index',
+        y = 'hospital_beds_per_thousand',
+        color = 'location'
+    ).interactive()
+    return k.to_json()
 
-    # #specifying form of data; read: https://altair-viz.github.io/user_guide/data.html#long-form-vs-wide-form-data
-    # base = alt.Chart(data).transform_fold(
-    #     ['daily_new_confirmed', 'daily_new_recovered', 'daily_new_death']
-    # )
+def continent_deaths(df):
+    alt.data_transformers.enable('default', max_rows=None)
+    k =alt.Chart(df).mark_bar().encode(
+    x = 'continent',
+    y = 'total_deaths_per_million',
+    # y= alt.Y('total_deaths_per_million:N', sort='-x')
+    color = 'continent'
+    ).interactive()
+    return k.to_json()
 
-    # # Create a selection that chooses the nearest point & selects based on x-value
-    # nearest = alt.selection(type='single', nearest=True, on='mouseover',
-    #                         fields=['date'], empty='none')
 
-    # # The basic line
-    # line = base.mark_line().encode(
-    #     x='date:T',
-    #     y=alt.Y('value:Q', axis=alt.Axis(title='# of cases')),
-    #     color='key:N',
+def continent_new_cases(df):
+    alt.data_transformers.enable('default', max_rows=None)
+    k =alt.Chart(df).mark_bar().encode(
+    x = 'continent',
+    y = 'new_cases_per_million',
+    color = 'continent'
+        ).interactive()
+    return k.to_json()
 
-    # )
 
-    # # Transparent selectors across the chart. This is what tells us
-    # # the x-value of the cursor
-    # selectors = base.mark_point().encode(
-    #     x='date:T',
-    #     opacity=alt.value(0),
-    #     tooltip=[alt.Tooltip('yearmonthdate(date)', title="Date")]
-    # ).add_selection(
-    #     nearest
-    # )
+def hdi_new_cases(df):
+    alt.data_transformers.enable('default', max_rows=None)
+    k =alt.Chart(df).mark_point().encode(
+    alt.X('human_development_index:Q',
+    scale=alt.Scale(zero=False)),
+    y = 'new_cases_per_million',
+    color = 'continent'
+        ).interactive()
+    return k.to_json()
 
-    # # Draw points on the line, and highlight based on selection
-    # points = line.mark_point().encode(
-    #     opacity=alt.condition(nearest, alt.value(1), alt.value(0))
-    # )
-
-    # # Draw text labels near the points, and highlight based on selection
-    # text = line.mark_text(align='left', dx=5, dy=-5).encode(
-    #     text=alt.condition(nearest, 'value:Q', alt.value(' '))
-    # )
-
-    # # Draw a rule at the location of the selection
-    # rules = alt.Chart(data).mark_rule(color='gray').encode(
-    #     x='date:T',
-
-    # ).transform_filter(
-    #     nearest
-    # )
-
-    # # Put the five layers into a chart and bind the data
-    # chart = alt.layer(
-    #     line, selectors, points, rules, text
-    # ).properties(width=1300, height=400, title=f'{country_name} daily cases')
-    # chart_json = chart.to_json()
-    # return chart_json
+def vax_cases(df):
+    
+    k =alt.Chart(df).mark_point().encode(
+        alt.Y('total_cases:Q'),
+       alt.X('new_vaccinations_smoothed_per_million:Q',
+            ),  color = 'continent'
+        ).interactive()
+    return k.to_json()
 
 
