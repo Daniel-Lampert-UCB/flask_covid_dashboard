@@ -31,6 +31,8 @@ total_vaccines = utils.get_total_vaccines(vaccinations)
 total_cases = utils.total_cases(owid_covid_latest)
 #Total deaths in world
 deaths = utils.total_death(owid_covid_latest)
+# read in owid data
+owid = utils.clean_case_data(owid_covid_latest)
 
 
 
@@ -56,45 +58,46 @@ def plot_plotly_global():
 @app.route("/altair")
 def plot_altair_global():
     # total confirmed cases globally
-    total_all_confirmed = total_confirmed[total_confirmed.columns[-1]].sum()
-    total_all_recovered = total_recovered[total_recovered.columns[-1]].sum()
-    total_all_deaths = total_death[total_death.columns[-1]].sum()
+    # total_all_confirmed = total_confirmed[total_confirmed.columns[-1]].sum()
+    # total_all_recovered = total_recovered[total_recovered.columns[-1]].sum()
+    # total_all_deaths = total_death[total_death.columns[-1]].sum()
     #ploting
     plot_global_cases_per_country = altair_plot.altair_global_cases_per_country(vax_cases_by_man)
-    plot_global_time_series = altair_plot.altair_global_time_series(
-        timeseries_final)
-    plot_geo_analysis = altair_plot.altair_geo_analysis(final_df)
-    context = {"total_all_confirmed": total_all_confirmed,
-               "total_all_recovered": total_all_recovered, "total_all_deaths": total_all_deaths,
-               'plot_global_cases_per_country': plot_global_cases_per_country,
-               'plot_global_time_series': plot_global_time_series, 'plot_geo_analysis': plot_geo_analysis}
+    # plot_global_time_series = altair_plot.altair_global_time_series(
+    #     timeseries_final)
+    time_series = altair_plot.altair_per_country_time_series(vax_cases_by_man)
+    context = {'plot_global_cases_per_country': plot_global_cases_per_country,
+                'plot_geo_analysis': time_series, 'plot_global_cases_per_country': plot_global_cases_per_country}
     return render_template('altair.html', context=context)
 
     
 @app.route("/chartjs")
 def plot_chartjs():
     # total confirmed cases globally
-    total_all_confirmed = total_confirmed[total_confirmed.columns[-1]].sum()
-    total_all_recovered = total_recovered[total_recovered.columns[-1]].sum()
-    total_all_deaths = total_death[total_death.columns[-1]].sum()
-    countries = final_df['Country/Region'].values.tolist()
-    total_values = final_df['confirmed'].values.tolist()
-    cases_per_million = final_df['cases/million'].values.round(2).tolist()
+    # total_all_confirmed = total_confirmed[total_confirmed.columns[-1]].sum()
+    # total_all_recovered = total_recovered[total_recovered.columns[-1]].sum()
+    # total_all_deaths = total_death[total_death.columns[-1]].sum()
+    # countries = final_df['Country/Region'].values.tolist()
+    # total_values = final_df['confirmed'].values.tolist()
+    # cases_per_million = final_df['cases/million'].values.round(2).tolist()
     
-    #  time series for each cases
-    confirmed_timeseries = timeseries_final["daily new cases"].values.tolist()
-    death_timeseries = timeseries_final["daily new deaths"].values.tolist()
-    recovered_timeseries = timeseries_final["daily new recovered"].values.tolist()
-    timeseries_dates = timeseries_final["date"].values.tolist()
-    #load json file for highchart map
-    datamap = utils.load_chartjs_map_data(final_df, df_pop)
+    # #  time series for each cases
+    # confirmed_timeseries = timeseries_final["daily new cases"].values.tolist()
+    # death_timeseries = timeseries_final["daily new deaths"].values.tolist()
+    # recovered_timeseries = timeseries_final["daily new recovered"].values.tolist()
+    # timeseries_dates = timeseries_final["date"].values.tolist()
+    # #load json file for highchart map
+    # datamap = utils.load_chartjs_map_data(final_df, df_pop)
+    time_series = altair_plot.altair_per_country_time_series(vax_cases_by_man)
+    context = {'time_series': time_series, 'second_time': time_series}
 
-    context = {"total_all_confirmed": total_all_confirmed,
-               "total_all_recovered": total_all_recovered, "total_all_deaths": total_all_deaths,
-               "confirmed_timeseries": confirmed_timeseries, "death_timeseries": death_timeseries,
-               "recovered_timeseries": recovered_timeseries, 'timeseries_dates': timeseries_dates,
-               'countries': countries, 'total_values': total_values,
-               'cases_per_million': cases_per_million, 'datamap': datamap}
+
+    # context = {"total_all_confirmed": total_all_confirmed,
+    #            "total_all_recovered": total_all_recovered, "total_all_deaths": total_all_deaths,
+    #            "confirmed_timeseries": confirmed_timeseries, "death_timeseries": death_timeseries,
+    #            "recovered_timeseries": recovered_timeseries, 'timeseries_dates': timeseries_dates,
+    #            'countries': countries, 'total_values': total_values,
+    #            'cases_per_million': cases_per_million, 'datamap': datamap}
     return render_template('chartjs.html', context=context)
 
 
