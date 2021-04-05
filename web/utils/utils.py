@@ -84,7 +84,13 @@ def total_death(owid_covid_latest):
     cases = cases[cases['date']== day_before_yesterday]
     return sum(cases['total_deaths'])
 
+def clean_case_data(owid):
+    "Cleans owid data"
+    owid = owid.dropna(subset=['continent'])
+    owid = owid.dropna(subset = ['total_vaccinations_per_hundred'])
+    return owid
 
+### End of functions defined by Daniel
 
     
 
