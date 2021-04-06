@@ -95,13 +95,16 @@ def date_vaccinations(df):
                         alt.value('lightgray'))
 
     k = alt.Chart(df).mark_point().encode(
-    alt.X('date:O', title = 'Date'),
+    alt.X('date:T', title = 'Date'),
        alt.Y('new_vaccinations_smoothed_per_million:Q', title = 'New Vaccinations (Smoothed per Million)'),
        color = color,
         tooltip='Name:N'
     ).add_selection(
         selection
-    ).interactive()
+    ).properties(
+        width=700,
+        height=400
+        ).interactive()
     return k.to_json()
 
 def vaccinations_deaths(df):
@@ -114,7 +117,7 @@ def vaccinations_deaths(df):
 
     k = alt.Chart(df, title = "Vaccinations vs Deaths").mark_point().encode(
     alt.Y('new_deaths_smoothed_per_million:Q', title = 'New Deaths (Smoothed per Million)'),
-       alt.X('new_vaccinations_smoothed_per_million:Q', title = 'New Vaccinations (Smoothed per Million)'),
+       alt.X('new_vaccinations_smoothed_per_million:Q', title = 'New Vaccinations (Smoothed per Million)', scale=alt.Scale(domain=[0, 17000])),
        color = color,
         tooltip='Name:N'
     ).add_selection(
