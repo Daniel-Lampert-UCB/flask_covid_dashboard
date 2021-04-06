@@ -10,7 +10,7 @@ put your custom script or styling here
 {% block my_content %}
 <!-- Confirmed, Recovered, Deaths Card -->
 <div class = "row">
-    <h1>Global Cases and Deaths</h1> <br>
+    <h1>Global Cases, Deaths, and Vaccines</h1> 
     
     <p>Adding some paragraphs</p>
 </div>
@@ -20,14 +20,19 @@ put your custom script or styling here
         <div class="col"></div>
         <div class="col-6">
             <!-- Placeholder for map-->
-            <div id="time-series"></div>
+            <div id="date-deaths"></div>
         </div>
         <div class="col"> </div>
     </div>
     <div class="row">
         <div class="col"></div>
         <div class="col-9">
-            <div id="second-time"></div>
+            <div id="date-vax"></div>
+    </div>
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-9">
+            <div id="death-vax"></div>
     </div>
     <!-- Placeholder for the tooltip -->
     <div id="vis-tooltip" class="vg-tooltip"></div>
@@ -46,8 +51,9 @@ put your custom script or styling here
         });
     }
     //Parse your Json variable here
-    parse({{ context.time_series| safe }}, "time-series")
-    parse({{ context.second_time| safe }}, "second-time");
+    parse({{ context.date_deaths| safe }}, "date-deaths")
+    parse({{ context.date_vaccines| safe }}, "date-vax")
+    parse({{ context.death_vax| safe }}, "death-vax");
     // parse({{ context.plot_global_time_series | safe }}, "global-time")
     // parse({{ context.plot_geo_analysis | safe }}, "geo");
 </script>
