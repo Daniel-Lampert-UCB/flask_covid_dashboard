@@ -33,6 +33,7 @@ total_cases = utils.total_cases(owid_covid_latest)
 deaths = utils.total_death(owid_covid_latest)
 # read in owid data
 owid = utils.clean_case_data(owid_covid_latest)
+owid_date = utils.date_correct_owid(owid_covid_latest)
 
 
 
@@ -73,31 +74,10 @@ def plot_altair_global():
     
 @app.route("/chartjs")
 def plot_chartjs():
-    # total confirmed cases globally
-    # total_all_confirmed = total_confirmed[total_confirmed.columns[-1]].sum()
-    # total_all_recovered = total_recovered[total_recovered.columns[-1]].sum()
-    # total_all_deaths = total_death[total_death.columns[-1]].sum()
-    # countries = final_df['Country/Region'].values.tolist()
-    # total_values = final_df['confirmed'].values.tolist()
-    # cases_per_million = final_df['cases/million'].values.round(2).tolist()
-    
-    # #  time series for each cases
-    # confirmed_timeseries = timeseries_final["daily new cases"].values.tolist()
-    # death_timeseries = timeseries_final["daily new deaths"].values.tolist()
-    # recovered_timeseries = timeseries_final["daily new recovered"].values.tolist()
-    # timeseries_dates = timeseries_final["date"].values.tolist()
-    # #load json file for highchart map
-    # datamap = utils.load_chartjs_map_data(final_df, df_pop)
-    time_series = altair_plot.altair_per_country_time_series(vax_cases_by_man)
-    context = {'time_series': time_series, 'second_time': time_series}
-
-
-    # context = {"total_all_confirmed": total_all_confirmed,
-    #            "total_all_recovered": total_all_recovered, "total_all_deaths": total_all_deaths,
-    #            "confirmed_timeseries": confirmed_timeseries, "death_timeseries": death_timeseries,
-    #            "recovered_timeseries": recovered_timeseries, 'timeseries_dates': timeseries_dates,
-    #            'countries': countries, 'total_values': total_values,
-    #            'cases_per_million': cases_per_million, 'datamap': datamap}
+    #time_series = altair_plot.altair_per_country_time_series(vax_cases_by_man)
+    deaths_vax = altair_plot.vaccinations_deaths(owid_date)
+    date_deaths = altair_plot.date_deaths(owid_date)
+    context = {'time_series': date_deaths, 'second_time': deaths_vax}
     return render_template('chartjs.html', context=context)
 
 
