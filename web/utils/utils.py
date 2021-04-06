@@ -89,6 +89,11 @@ def clean_case_data(owid):
     owid = owid.dropna(subset=['continent'])
     owid = owid.dropna(subset = ['total_vaccinations_per_hundred'])
     return owid
+def date_correct_owid(owid):
+    "Cleaning for global chart"
+    owid.dropna(subset=['total_deaths', 'total_tests'])
+    owid = owid[owid['date'] > '2021-02-03']
+    return owid
 
 ### End of functions defined by Daniel
 
