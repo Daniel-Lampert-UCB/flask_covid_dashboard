@@ -45,7 +45,7 @@ def altair_per_country_time_series(vax_data_man):
     "returns json for time series vaccinations"
     input_dropdown = alt.binding_select(options=['Germany','Iceland','Italy',
                                              'Czechia', 'Latvia', 'Lithuania', 'Chile', 'United States'])
-    selection = alt.selection_single(fields=['location'], bind=input_dropdown, name='location')
+    selection = alt.selection_single(fields=['location'], bind=input_dropdown, name='location', init={'location':'United States'})
     color = alt.condition(selection,
                     alt.Color('vaccine:N'),
                     alt.value('lightgray'))
@@ -76,7 +76,7 @@ def date_deaths(df):
 
     k = alt.Chart(df, title = "New Deaths in Time").mark_point().encode(
     alt.X('date:T', title = 'Date'),
-       alt.Y('new_deaths_smoothed_per_million:Q', title = 'New Deaths (Smoothed per Million)'),
+       alt.Y('new_deaths_smoothed_per_million:Q', title = 'New Deaths'),
        color = color,
         tooltip='Name:N'
     ).add_selection(
@@ -96,7 +96,7 @@ def date_vaccinations(df):
 
     k = alt.Chart(df).mark_point().encode(
     alt.X('date:T', title = 'Date'),
-       alt.Y('new_vaccinations_smoothed_per_million:Q', title = 'New Vaccinations (Smoothed per Million)'),
+       alt.Y('new_vaccinations_smoothed_per_million:Q', title = 'New Vaccinations'),
        color = color,
         tooltip='Name:N'
     ).add_selection(
@@ -116,8 +116,8 @@ def vaccinations_deaths(df):
                         alt.value('lightgray'))
 
     k = alt.Chart(df, title = "Vaccinations vs Deaths").mark_point().encode(
-    alt.Y('new_deaths_smoothed_per_million:Q', title = 'New Deaths (Smoothed per Million)'),
-       alt.X('new_vaccinations_smoothed_per_million:Q', title = 'New Vaccinations (Smoothed per Million)', scale=alt.Scale(domain=[0, 17000])),
+    alt.Y('new_deaths_smoothed_per_million:Q', title = 'New Deaths'),
+       alt.X('new_vaccinations_smoothed_per_million:Q', title = 'New Vaccinations', scale=alt.Scale(domain=[0, 17000])),
        color = color,
         tooltip='Name:N'
     ).add_selection(
@@ -137,8 +137,8 @@ def hdi_vaccinations(df):
                         alt.value('lightgray'))
 
     k = alt.Chart(df).mark_point().encode(
-    alt.Y('new_vaccinations_smoothed_per_million:Q', title = 'New Deaths (Smoothed per Million)'),
-       alt.X('human_development_index', title = 'New Vaccinations (Smoothed per Million)'),
+    alt.Y('new_vaccinations_smoothed_per_million:Q', title = 'New Deaths '),
+       alt.X('human_development_index', title = 'New Vaccinations'),
        color = color,
         tooltip='Name:N'
     ).add_selection(
@@ -153,7 +153,7 @@ def hdi_vaccinations(df):
 ### State Covid data ###
 def state_vaccinations_per_hundred(state):
   input_dropdown = alt.binding_select(options=list(state['location'].unique()))
-  selection1 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location' )
+  selection1 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location', init={'location':'California'})
   #alt.binding_checkbox(fields=['location']) #, bind=input_dropdown, name='location' 
   #selection2 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location')
   alt.data_transformers.disable_max_rows()
@@ -203,9 +203,9 @@ def state_map(state):
           color= alt.Color('people_fully_vaccinated_per_hundred:Q', title = "Percent Fully Vaccinated")
       ).transform_lookup(
       lookup='id',
-      from_=alt.LookupData(avg_data, 'id', ['people_fully_vaccinated_per_hundred'])).properties(title='Recent State Map with People Fully Vaccinated Per Hundred',
-      width=500,
-      height=300
+      from_=alt.LookupData(avg_data, 'id', ['people_fully_vaccinated_per_hundred'])).properties(title='State Map with Percent Fully Vaccinated',
+      width=700,
+      height=500
   ).project(
       type='albersUsa')
   
