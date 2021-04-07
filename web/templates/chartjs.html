@@ -10,29 +10,42 @@ put your custom script or styling here
 {% block my_content %}
 <!-- Confirmed, Recovered, Deaths Card -->
 <div class = "row">
-    <h1>Global Cases, Deaths, and Vaccines</h1> 
+     
     
-    <p>Adding some paragraphs</p>
+    
 </div>
+
 <!-- Altair plot placeholder -->
 <div class="container-fluid">
+    <div>
+        <h2>New deaths over time by continent</h2>
+        <div>Adding some paragraphs that is much longer than the original. This will be very long and hopefully take up several lines. We would be very fortunate if it takes up a lot of space. We could only be so lucky</div>
     <div class="row">
         <div class="col"></div>
-        <div class="col-6">
+        <div class="col-12">
             <!-- Placeholder for map-->
             <div id="date-deaths"></div>
         </div>
+    </div>
         <div class="col"> </div>
     </div>
-    <div class="row">
-        <div class="col"></div>
-        <div class="col-9">
+    <div>
+        <div class="row">
+            <h2>New vaccinations over time by continent</h2>
+            <div>New vax over time by continent</div>
+            <div class="col"></div>
+            <div class="col-12">
             <div id="date-vax"></div>
     </div>
+    </div>
+    <div>
     <div class="row">
+        <h2>Impact of vaccinations on deaths</h2>
+        <div>Vaccinations should lower deaths</div>
         <div class="col"></div>
-        <div class="col-9">
+        <div class="col-12">
             <div id="death-vax"></div>
+    </div>
     </div>
     <!-- Placeholder for the tooltip -->
     <div id="vis-tooltip" class="vg-tooltip"></div>
