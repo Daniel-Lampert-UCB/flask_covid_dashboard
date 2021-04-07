@@ -8,48 +8,39 @@ put your custom script or styling here
 
 
 {% block my_content %}
-<!-- Confirmed, Recovered, Deaths Card -->
-<div class = "row">
-     
-    
-    
-</div>
 
 <!-- Altair plot placeholder -->
 <div class="container-fluid">
-    <div>
-        <h2>New deaths over time by continent</h2>
-        <div>Adding some paragraphs that is much longer than the original. This will be very long and hopefully take up several lines. We would be very fortunate if it takes up a lot of space. We could only be so lucky</div>
-    <div class="row">
-        <div class="col"></div>
-        <div class="col-12">
+    <div class="row" style="justify-content: center">
+        <div class="col-12" style="justify-content: center">
             <!-- Placeholder for map-->
+            <h2>What are the global treands in vaccination by manufacturer?</h2>
+            <p>This graph aims to show what are the trends in percentage of vaccines by manufacturer.</p>
             <div id="date-deaths"></div>
         </div>
     </div>
-        <div class="col"> </div>
+    <div class="row" style="margin-top: 20px">
+        <div class="col-12" style="justify-content: center">
+            <!-- Placeholder for the global-cases plot-->
+            <h2>What percent of the population is vaccinated and with what vaccine?</h2>
+            <p>This graph shows a bar chart over time of the percentage of a countries population vaccinated over time by vaccine type.</p>
+            <div id="date-vacines"></div>
+        </div>
     </div>
-    <div>
-        <div class="row">
-            <h2>New vaccinations over time by continent</h2>
-            <div>New vax over time by continent</div>
-            <div class="col"></div>
-            <div class="col-12">
-            <div id="date-vax"></div>
-    </div>
-    </div>
-    <div>
-    <div class="row">
-        <h2>Impact of vaccinations on deaths</h2>
-        <div>Vaccinations should lower deaths</div>
-        <div class="col"></div>
-        <div class="col-12">
-            <div id="death-vax"></div>
+
+    <div class="row" style="justify-content: center">
+        <div class="col-12" style="justify-content: center">
+            <!-- Placeholder for map-->
+            <h2>What are the global treands in vaccination by manufacturer?</h2>
+            <p>This graph aims to show what are the trends in percentage of vaccines by manufacturer.</p>
+            <div id="global-cases"></div>
+        </div>
     </div>
     </div>
-    <!-- Placeholder for the tooltip -->
-    <div id="vis-tooltip" class="vg-tooltip"></div>
-</div>
+
+
+
+
 <!-- Render Charts -->
 <script type="text/javascript">
     function parse(url, div) {
@@ -64,10 +55,8 @@ put your custom script or styling here
         });
     }
     //Parse your Json variable here
-    parse({{ context.date_deaths| safe }}, "date-deaths")
-    parse({{ context.date_vaccines| safe }}, "date-vax")
-    parse({{ context.death_vax| safe }}, "death-vax");
-    // parse({{ context.plot_global_time_series | safe }}, "global-time")
-    // parse({{ context.plot_geo_analysis | safe }}, "geo");
+    parse({{ context.date_deaths | safe }}, "date-deaths")
+    parse({{ context.date_vaccines | safe }}, "date-vacines")
+    parse({{ context.death_vax | safe }}, "global-cases");
 </script>
 {% endblock my_content %}

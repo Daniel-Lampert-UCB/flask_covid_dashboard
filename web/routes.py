@@ -40,7 +40,7 @@ owid_date = utils.date_correct_owid(owid_covid_latest)
 #for chart_js map
 
 @app.route("/")
-@app.route("/plotly")
+@app.route("/global-vaccinations")
 def plot_plotly_global():
     #ploting
     plot_global_cases_per_country = plotly_plot.plotly_global_cases_per_country(
@@ -56,7 +56,7 @@ def plot_plotly_global():
 
 
 
-@app.route("/altair")
+@app.route("/vaccinations-by-manufacturer")
 def plot_altair_global():
     # total confirmed cases globally
     # total_all_confirmed = total_confirmed[total_confirmed.columns[-1]].sum()
@@ -72,7 +72,7 @@ def plot_altair_global():
     return render_template('altair.html', context=context)
 
     
-@app.route("/chartjs")
+@app.route("/cases-deaths-vaccines")
 def plot_chartjs():
     #time_series = altair_plot.altair_per_country_time_series(vax_cases_by_man)
     deaths_vax = altair_plot.vaccinations_deaths(owid_date)
@@ -81,31 +81,10 @@ def plot_chartjs():
     context = {'date_deaths': date_deaths, 'date_vaccines':date_vaccines, 'death_vax': deaths_vax}
     return render_template('chartjs.html', context=context)
 
+@app.route("/state-vaccines")
+def plot_states():
+    state_vax = altair_plot.state_vaccinations_per_hundred(us_covid_vaccinations)
+    context = {'state_vax':state_vax}
+    return render_template('states.html', context=context)
 
-# @app.route("/country", methods=['POST'])
-# def plot_country():
-#     # total confirmed cases globally
-#     # take country input from user
-#     country_name = request.form['country_name']
-#     total_confirmed_per_country, total_death_per_country, total_recovered_per_country=utils.get_per_country_data(
-#             total_confirmed, total_death, total_recovered, country_name)
-#     #ploting
-#     #plotly
-#     plotly_country_plot = plotly_plot.plotly_per_country_time_series(total_confirmed, 
-#                                                             total_death, total_recovered, country_name)
-#     #altair
-#     altair_country_plot = altair_plot.altair_per_country_time_series(vax_cases_by_man)
-#     #chart.js variable
-#     timeseries_country = utils.get_by_country_merged(
-#         total_confirmed, total_death, total_recovered, country_name)
-    
-#     confirmed_timeseries = timeseries_country["daily_new_confirmed"].values.tolist()
-#     death_timeseries = timeseries_country["daily_new_death"].values.tolist()
-#     recovered_timeseries = timeseries_country["daily_new_recovered"].values.tolist()
-#     timeseries_dates = timeseries_country["date"].values.tolist()
-#     context = {"total_confirmed_per_country": total_confirmed_per_country,
-#             "total_death_per_country": total_death_per_country, "total_recovered_per_country": total_recovered_per_country,
-#             'plotly_country_plot': plotly_country_plot, 'altair_country_plot': altair_country_plot,
-#                "confirmed_timeseries": confirmed_timeseries, "death_timeseries": death_timeseries,
-#                "recovered_timeseries": recovered_timeseries, "timeseries_dates": timeseries_dates}
-#     return render_template('country.html', context=context)
+

@@ -101,6 +101,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a href="{{ url_for('plot_states')}}" class="nav-link ">
+                                       
+                                        <p>State Vaccines</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a href="{{ url_for('plot_altair_global')}}" class="nav-link ">
                                         
                                         <p>Vaccinations by manufacturer</p>
@@ -124,7 +130,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </aside>
 
         <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
+        <div class="content-wrapper" style="padding-left: 25px">
             <!-- Content Header (Page header) -->
             {% block my_content %}
             {% endblock my_content %}

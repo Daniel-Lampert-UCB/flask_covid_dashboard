@@ -149,74 +149,38 @@ def hdi_vaccinations(df):
     ).interactive()
     return k.to_json()
 
-# def altair_global_time_series(timeseries_final):
-#     #Plot Altair 6; Global time series chart for daily new cases, recovered, and deaths - version 3 (more fancy selector)
-#     #declare data and initialization
-#     data = timeseries_final
 
-#     #specifying form of data; read: https://altair-viz.github.io/user_guide/data.html#long-form-vs-wide-form-data
-#     base = alt.Chart(data).transform_fold(
-#         ['daily new cases', 'daily new recovered', 'daily new deaths']
-#     ).properties(
-#         title='Global Time Series'
-#     )
-#     base.configure_title(
-#         fontSize=20,
-#         font='Courier',
-#         anchor='start',
-#         color='gray',
-#         align="center"
-#     )
-#     # Create a selection that chooses the nearest point & selects based on x-value
-#     nearest = alt.selection(type='single', nearest=True, on='mouseover',
-#                             fields=['date'], empty='none')
+### State Covid data ###
+def state_vaccinations_per_hundred(state):
+  input_dropdown = alt.binding_select(options=list(state['location'].unique()))
+  selection1 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location' )
+  selection2 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location')
+  alt.data_transformers.disable_max_rows()
+  state_bubble = state#pd.read_csv("us_state_vaccinations.csv",encoding='latin-1')
 
-#     # The basic line
-#     line = base.mark_line().encode(
-#         x='date:T',
-#         y=alt.Y('value:Q', axis=alt.Axis(title='# of cases')),
-#         color='key:N',
+  chart = alt.Chart(state_bubble).mark_circle(size=100).encode(
+      x=alt.X('monthdate(date):T', title='date'),
+      y=alt.Y('people_fully_vaccinated_per_hundred:Q',title = 'people fully vaccinated per hundred'),
+      color='location',
+      # size='Elapsed_Time',
+      # href='url:N',
+      tooltip=["location", "people_fully_vaccinated_per_hundred"]
+  ).properties(title='State People Fully Vaccinated Per Hundred Rate Over Time').add_selection(
+    selection1
+).transform_filter(
+    selection1
+).properties(
+    width=500,
+    height=350
+).add_selection(
+    selection2
+).transform_filter(
+    selection2
+)
 
-#     )
+  return chart.to_json()
 
-#     # Transparent selectors across the chart. This is what tells us
-#     # the x-value of the cursor
-#     selectors = base.mark_point().encode(
-#         x='date:T',
-#         opacity=alt.value(0),
-#         tooltip=[alt.Tooltip('yearmonthdate(date)', title="Date")]
-#     ).add_selection(
-#         nearest
-#     )
 
-#     # Draw points on the line, and highlight based on selection
-#     points = line.mark_point().encode(
-#         opacity=alt.condition(nearest, alt.value(1), alt.value(0))
-#     )
-
-#     # Draw text labels near the points, and highlight based on selection
-#     text = line.mark_text(align='left', dx=5, dy=-5).encode(
-#         text=alt.condition(nearest, 'value:Q', alt.value(' '))
-#     )
-
-#     # Draw a rule at the location of the selection
-#     rules = alt.Chart(data).mark_rule(color='gray').encode(
-#         x='date:T',
-
-#     ).transform_filter(
-#         nearest
-#     )
-
-#     # Put the five layers into a chart and bind the data
-#     chart = alt.layer(
-#         line, selectors, points, rules, text
-#     ).properties(
-#         width=1300, height=500
-#     )
-#     chart_json = chart.to_json()
-#     return chart_json
-
-#Plot Altair 7 geographical analysis; ref : https://github.com/altair-viz/altair/issues/2044
 
 
 def altair_geo_analysis(final_df):
