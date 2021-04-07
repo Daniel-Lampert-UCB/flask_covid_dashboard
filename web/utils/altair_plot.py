@@ -21,7 +21,7 @@ def altair_global_cases_per_country(vax_data_by_man):
         delta_day = (row - min(vax_data_by_man['date'])).days
         delta_days.append(delta_day)
     vax_data_by_man = vax_data_by_man.assign(delta_days = delta_days)
-    slider = alt.binding_range(min=0, max=max(vax_data_by_man['delta_days']), step = 1)
+    slider = alt.binding_range(min=0, max=max(vax_data_by_man['delta_days']), step = 1,  name = 'Select Day Since First Vaccine ')
 
     selector = alt.selection_single(name = 'delta_days', fields = ['delta_days'],
                                bind=slider, init={'delta_days': 0})
@@ -44,8 +44,8 @@ def altair_global_cases_per_country(vax_data_by_man):
 def altair_per_country_time_series(vax_data_man):
     "returns json for time series vaccinations"
     input_dropdown = alt.binding_select(options=['Germany','Iceland','Italy',
-                                             'Czechia', 'Latvia', 'Lithuania', 'Chile', 'United States'])
-    selection = alt.selection_single(fields=['location'], bind=input_dropdown, name='location', init={'location':'United States'})
+                                             'Czechia', 'Latvia', 'Lithuania', 'Chile', 'United States'], name = 'Select Country ')
+    selection = alt.selection_single(fields=['location'], bind=input_dropdown, init={'location':'United States'})
     color = alt.condition(selection,
                     alt.Color('vaccine:N'),
                     alt.value('lightgray'))
