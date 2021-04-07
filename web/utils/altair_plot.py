@@ -154,14 +154,14 @@ def hdi_vaccinations(df):
 def state_vaccinations_per_hundred(state):
   input_dropdown = alt.binding_select(options=list(state['location'].unique()))
   selection1 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location' )
-  selection2 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location')
+  #alt.binding_checkbox(fields=['location']) #, bind=input_dropdown, name='location' 
+  #selection2 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location')
   alt.data_transformers.disable_max_rows()
   state_bubble = state#pd.read_csv("us_state_vaccinations.csv",encoding='latin-1')
 
   chart = alt.Chart(state_bubble).mark_circle(size=100).encode(
       x=alt.X('monthdate(date):T', title='date'),
       y=alt.Y('people_fully_vaccinated_per_hundred:Q',title = 'people fully vaccinated per hundred'),
-      color='location',
       # size='Elapsed_Time',
       # href='url:N',
       tooltip=["location", "people_fully_vaccinated_per_hundred"]
@@ -170,15 +170,46 @@ def state_vaccinations_per_hundred(state):
 ).transform_filter(
     selection1
 ).properties(
-    width=500,
-    height=350
-).add_selection(
-    selection2
-).transform_filter(
-    selection2
-)
-
+    width=700,
+    height=400)
   return chart.to_json()
+
+def state_map(state):
+
+  newest = max(state['date'])
+  recent = state[state['date'] == newest]
+  avg_data = recent[recent.location != 'American Samoa'] 
+  avg_data = avg_data[avg_data.location != 'Bureau of Prisons']
+  avg_data = avg_data[avg_data.location != 'Dept of Defense']
+  avg_data = avg_data[avg_data.location != 'Federated States of Micronesia']
+  avg_data = avg_data[avg_data.location != 'Guam']
+  avg_data = avg_data[avg_data.location != 'Indian Health Svc']
+  avg_data = avg_data[avg_data.location != 'Long Term Care']
+  avg_data = avg_data[avg_data.location != 'Marshall Islands']
+  avg_data = avg_data[avg_data.location != 'Northern Mariana Islands']
+  # avg_data = avg_data[avg_data.location != 'Puerto Rico']
+  avg_data = avg_data[avg_data.location != 'Republic of Palau']
+  avg_data = avg_data[avg_data.location != 'Veterans Health']
+  avg_data = avg_data[avg_data.location != 'Virgin Islands']
+  avg_data = avg_data[avg_data.location != 'United States']
+  avg_data = avg_data.groupby('location').mean()
+
+  avg_data['id'] = np.arange(len(avg_data)) + 1
+
+
+  source = alt.topo_feature(data.us_10m.url, 'states')
+
+  map = alt.Chart(source).mark_geoshape().encode(
+          color= alt.Color('people_fully_vaccinated_per_hundred:Q', title = "Percent Fully Vaccinated")
+      ).transform_lookup(
+      lookup='id',
+      from_=alt.LookupData(avg_data, 'id', ['people_fully_vaccinated_per_hundred'])).properties(title='Recent State Map with People Fully Vaccinated Per Hundred',
+      width=500,
+      height=300
+  ).project(
+      type='albersUsa')
+  
+  return map.to_json()
 
 
 
