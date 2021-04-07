@@ -84,7 +84,8 @@ def plot_chartjs():
 @app.route("/state-vaccines")
 def plot_states():
     state_vax = altair_plot.state_vaccinations_per_hundred(us_covid_vaccinations)
-    context = {'state_vax':state_vax}
+    map_ = altair_plot.state_map(us_covid_vaccinations)
+    context = {'state_vax':state_vax, 'map':map_}
     return render_template('states.html', context=context)
 
 
