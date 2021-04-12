@@ -3,6 +3,8 @@ from datetime import datetime,timedelta, date
 # check your pickle compability, perhaps its pickle not pickle5
 import pandas as pd
 import json
+import altair as alt
+from vega_datasets import data
 
 def pull_data():
     "Pulls data from github." #defined by daniel
@@ -39,10 +41,12 @@ def prepprocess_data_vaccinations_by_man(vaccinations_by_manufacturer):
             return 1920000
         elif data == 'Lithuania':
             return 2974000
+        elif data == 'Romania':
+            return 19410000
         else:
             return 328200000
     vaccinations_by_manufacturer['population'] = vaccinations_by_manufacturer['location'].apply(add_pop)
-    vaccinations_by_manufacturer['percent_vaxes'] = vaccinations_by_manufacturer['total_vaccinations']/vaccinations_by_manufacturer['population']
+    vaccinations_by_manufacturer['percent_vaxes'] = (vaccinations_by_manufacturer['total_vaccinations']/vaccinations_by_manufacturer['population']) *100
     vaccinations_by_manufacturer['date']= pd.to_datetime(vaccinations_by_manufacturer['date'])
     vaccinations_by_manufacturer['year'] = pd.DatetimeIndex(vaccinations_by_manufacturer['date']).year
     vaccinations_by_manufacturer['month'] = pd.DatetimeIndex(vaccinations_by_manufacturer['date']).month
@@ -94,6 +98,26 @@ def date_correct_owid(owid):
     owid.dropna(subset=['total_deaths', 'total_tests'])
     owid = owid[owid['date'] > '2021-02-03']
     return owid
+### Gets data for internation chloropleth
+def international_vax_data():
+    "Reads in internation data and data for international geo graph"
+    df = pd.read_csv(
+        "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/vaccinations.csv",
+        names = ['Country', 'iso_code','date', 'total_vaccinations','people_vaccinated','people_fully_vaccinated', 'daily_vaccinations_raw',	'daily_vaccinations',	'total_vaccinations_per_hundred',	'people_vaccinated_per_hundred','people_fully_vaccinated_per_hundred','daily_vaccinations_per_million'],
+        encoding='latin-1'
+    )
+    country_info = pd.read_csv('https://gist.githubusercontent.com/komasaru/9303029/raw/9ea6e5900715afec6ce4ff79a0c4102b09180ddd/iso_3166_1.csv')
+    country_info = country_info.rename(columns = {'Alpha-3 code': 'iso_code'})
+    df = df[2:]
+    df['date'] = pd.to_datetime(df['date'], errors='coerce', format='%Y-%m-%d')
+    country_info = pd.read_csv('https://gist.githubusercontent.com/komasaru/9303029/raw/9ea6e5900715afec6ce4ff79a0c4102b09180ddd/iso_3166_1.csv')
+    country_info = country_info.rename(columns = {'Alpha-3 code': 'iso_code'})
+    all_data = pd.merge(country_info, df, how = 'inner', on = "iso_code")
+    all_data = all_data.sort_values('date', ascending=True)
+    all_data = all_data.tail(5000)
+    all_data['id'] = all_data['Numeric']
+    countries = alt.topo_feature(data.world_110m.url, 'countries')
+    return all_data, countries
 
 ### End of functions defined by Daniel
 

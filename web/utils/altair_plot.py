@@ -13,6 +13,56 @@ from plotly.subplots import make_subplots
 import plotly.express as px
 import json
 from web.utils.utils import get_by_country_merged
+#### Graphs for Home Page
+
+#Graph 1: Internation vaccination
+def make_global_vax(all_data, countries):
+    scale = alt.Scale(
+      range=['floralwhite', 'forestgreen'],
+      type='linear', domain = [0, 100]
+    )
+    chart = alt.Chart(all_data, title = "Percent Vaccinated in the World").mark_geoshape()\
+        .encode(color=alt.Color('total_vaccinations_per_hundred:Q', title = "Percent Vaccinated", scale = scale), 
+        tooltip=["Country", "people_fully_vaccinated_per_hundred"])\
+        .transform_lookup(
+        lookup='id',
+        from_=alt.LookupData(countries, key='id',
+                             fields=["type", "properties", "geometry"])
+    )\
+        .project('naturalEarth1')\
+        .properties(
+        width=800,
+        height=500
+    )
+    return chart.to_json()
+#     "Makes international chloropleth"
+#     sphere = alt.sphere()
+#     graticule = alt.graticule()
+#     scale = alt.Scale(
+#       range=['floralwhite', 'darkgreen'],
+#       type='linear'
+#     )
+#   # # Layering and configuring the components
+#     chart = alt.layer(
+#         alt.Chart(sphere).mark_geoshape(),
+#         alt.Chart(graticule).mark_geoshape(stroke='white', strokeWidth=0.5),
+#     alt.Chart(all_data, title = "Percent Vaccinated in the World").mark_geoshape().encode(
+#         color=alt.Color('people_fully_vaccinated_per_hundred:Q', scale = scale, title = "Percent Fully Vaccinated"),
+#         tooltip=["Country", "people_fully_vaccinated_per_hundred"]
+#     ).transform_lookup(
+#       lookup='id',
+#       from_=alt.LookupData(countries, key='id',
+#                              fields=["type", "properties", "geometry"])).properties(
+#       width=700,
+#       height=400
+#     )
+#     ).project(
+#       'naturalEarth1'
+#     ).properties(width=600, height=400).configure_view(stroke=None)
+#     return chart.to_json()
+
+
+
 #Graphs for Vaccination by manufacturer
 def altair_global_cases_per_country(vax_data_by_man):
     "Bar Chart of Days"

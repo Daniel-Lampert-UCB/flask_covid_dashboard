@@ -10,6 +10,9 @@ put your custom script or styling here
 
 {% block my_content %}
 <!-- Confirmed, Recovered, Deaths Card -->
+<div>
+    <h1>Global Vaccination Trends</h1>
+</div>
 <div class="row">
     <div class="col-sm">
         <!-- small box -->
@@ -24,7 +27,7 @@ put your custom script or styling here
     <!-- ./col -->
     <div class="col-sm">
         <!-- small box -->
-        <div class="small-box bg-success">
+        <div class="small-box bg-danger">
             <div class="inner">
                 <h3>{{context.total_death}}<sup style="font-size: 20px"></sup></h3>
 
@@ -36,7 +39,7 @@ put your custom script or styling here
     <!-- ./col -->
     <div class="col-sm">
         <!-- small box -->
-        <div class="small-box bg-danger">
+        <div class="small-box bg-green">
             <div class="inner">
                 <h3>{{context.total_all_vaccines}}</h3>
 
@@ -44,47 +47,36 @@ put your custom script or styling here
             </div>
         </div>
     </div>
-    <!-- ./col -->
-</div>
-<!-- Plotly plot placeholder -->
-<div class="container-fluid">
-    <div class="row">
-        <div class="col">
-        </div>
-            <div class="col-6">
+
+
+
+
+    <div class="container-fluid">
+        <div class="row" style="justify-content: center">
+            <div class="col-12" style="justify-content: center">
                 <!-- Placeholder for map-->
-                <div class="chart" id="plotly-geo">
-                </div>
-            </div>
-        <div class="col">
-        </div>
-    </div>
-        <div class="row">
-        <!-- Placeholder for the global-cases plot-->
-            <div class="chart" id="plotly-global">
+                <h2>What are the vaccine trends by country?</h2>
+                <p>This graph shows current percentage of each countries population that is vaccinated. Countries that are white do not have data</p>
+                <div id="global-vax"></div>
             </div>
         </div>
-        <hr>
-        <div class="row">
-            <!-- Placeholder for global-time series -->
-            <div id="plotly-timeseries"></div>
-        </div>
     </div>
-</div>
-<!-- Script to execute the Json ( we can create it also with looping) -->
-<script>
+
+
+<!-- Render Charts -->
+<script type="text/javascript">
+    function parse(url, div) {
+        var opt = {
+            mode: "vega-lite",
+            renderer: "svg",
+            actions: { export: true, source: false, editor: false }
+        };
+        vegaEmbed("#" + div, url, opt, function (error, result) {
+            // result.view is the Vega View, url is the original Vega-Lite specification
+            vegaTooltip.vegaLite(result.view, url);
+        });
+    }
     //Parse your Json variable here
-    var graphs = {{ context.plot_geo_analysis | safe }};
-    Plotly.plot('plotly-geo', graphs, {});
-</script>
-<script>
-    //Parse your Json variable here
-    var graphs = {{ context.plot_global_cases_per_country | safe }};
-    Plotly.plot('plotly-global', graphs, {});
-</script>
-<script>
-    //Parse your Json variable here
-    var graphs = {{ context.plot_global_time_series | safe }};
-    Plotly.plot('plotly-timeseries', graphs, {});
+    parse({{ context.plot_geo_analysis | safe }}, "global-vax");
 </script>
 {% endblock my_content %}

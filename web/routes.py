@@ -35,6 +35,8 @@ deaths = utils.total_death(owid_covid_latest)
 owid = utils.clean_case_data(owid_covid_latest)
 owid_date = utils.date_correct_owid(owid_covid_latest)
 
+#Data for global vaccination
+all_data, countries = utils.international_vax_data()
 
 
 #for chart_js map
@@ -42,16 +44,14 @@ owid_date = utils.date_correct_owid(owid_covid_latest)
 @app.route("/")
 @app.route("/global-vaccinations")
 def plot_plotly_global():
+    #return numbers with commas 
+    def place_value(number):
+        return ("{:,}".format(number))
     #ploting
-    plot_global_cases_per_country = plotly_plot.plotly_global_cases_per_country(
-        final_df)
-    plot_global_time_series = plotly_plot.plotly_global_timeseries(
-        timeseries_final)
-    plot_geo_analysis = plotly_plot.plotly_geo_analysis(final_df)
-    context = {"total_all_confirmed": int(total_cases),
-               "total_death": int(deaths), "total_all_vaccines": int(total_vaccines),
-            'plot_global_cases_per_country': plot_global_cases_per_country,
-            'plot_global_time_series': plot_global_time_series,'plot_geo_analysis': plot_geo_analysis}
+    plot_geo_analysis = altair_plot.make_global_vax(all_data, countries)
+    context = {"total_all_confirmed": place_value(int(total_cases)),
+               "total_death": place_value(int(deaths)), "total_all_vaccines": place_value(int(total_vaccines)),
+               'plot_geo_analysis': plot_geo_analysis}
     return render_template('plotly.html', context=context)
 
 
