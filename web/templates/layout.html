@@ -89,11 +89,17 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             <a href="#" class="nav-link ">
                                 <i class="nav-icon fas fa-th"></i>
                                 <p>
-                                    Global plot
+                                    Vaccine Hub
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url_for('home')}}" class="nav-link ">
+                                       
+                                        <p>Home</p>
+                                    </a>
+                                </li>
                                 <li class="nav-item">
                                     <a href="{{ url_for('plot_plotly_global')}}" class="nav-link ">
                                        

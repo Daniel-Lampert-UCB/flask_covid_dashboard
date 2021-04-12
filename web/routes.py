@@ -39,9 +39,13 @@ owid_date = utils.date_correct_owid(owid_covid_latest)
 all_data, countries = utils.international_vax_data()
 
 
-#for chart_js map
-
 @app.route("/")
+@app.route("/vaccination-hub")
+def home():
+    return render_template('home.html')
+
+#for chart_js map
+#@app.route("/")
 @app.route("/global-vaccinations")
 def plot_plotly_global():
     #return numbers with commas 

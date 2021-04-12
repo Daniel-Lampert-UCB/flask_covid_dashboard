@@ -21,7 +21,7 @@ def make_global_vax(all_data, countries):
       range=['floralwhite', 'forestgreen'],
       type='linear', domain = [0, 100]
     )
-    chart = alt.Chart(all_data, title = "Percent Vaccinated in the World").mark_geoshape()\
+    chart = alt.Chart(all_data).mark_geoshape()\
         .encode(color=alt.Color('total_vaccinations_per_hundred:Q', title = "Percent Vaccinated", scale = scale), 
         tooltip=["Country", "people_fully_vaccinated_per_hundred"])\
         .transform_lookup(
@@ -31,8 +31,8 @@ def make_global_vax(all_data, countries):
     )\
         .project('naturalEarth1')\
         .properties(
-        width=800,
-        height=500
+        width=1000,
+        height=600
     )
     return chart.to_json()
 #     "Makes international chloropleth"
@@ -73,17 +73,17 @@ def altair_global_cases_per_country(vax_data_by_man):
         delta_day = (row - min(vax_data_by_man['date'])).days
         delta_days.append(delta_day)
     vax_data_by_man = vax_data_by_man.assign(delta_days = delta_days)
-    slider = alt.binding_range(min=0, max=max(vax_data_by_man['delta_days']), step = 1,  name = 'Select Days since December 24')
+    slider = alt.binding_range(min=0, max=max(vax_data_by_man['delta_days']), step = 1,  name = 'Select Days since December 24, 2020')
 
     selector = alt.selection_single(name = 'delta_days', fields = ['delta_days'],
                                bind=slider, init={'delta_days': 0})
-    chart =  alt.Chart(vax_data_by_man, title = "Percent Vaccinated by Manufacturer over Time").mark_bar().encode(
+    chart =  alt.Chart(vax_data_by_man).mark_bar().encode(
         x='location',
         y=alt.Y('sum(percent_vaxes)', title = "Percent Vaccinated"),
         color=alt.Color('vaccine:N', title = 'Vaccine', scale = alt.Scale(domain = domain, range = range_))
         ).properties(
-        width=600,
-        height=350
+        width=1000,
+        height=600
     ).add_selection(
     selector
     ).transform_filter(
@@ -104,7 +104,7 @@ def altair_per_country_time_series(vax_data_man):
     #                 alt.Color('vaccine:N'),
     #                 alt.value('lightgray'))
 
-    chart = alt.Chart(vax_data_man, title = "Percent of Population Vaccinated by Vaccine Type").mark_line().encode(
+    chart = alt.Chart(vax_data_man).mark_line().encode(
     x=alt.X('date:T', title= "Date"),
     y=alt.Y('percent_vaxes:Q', title = 'Percent of Population Vaccinated'),
     color = alt.Color('vaccine:N', title = 'Vaccine', scale = alt.Scale(domain = domain, range = range_)),
@@ -114,8 +114,8 @@ def altair_per_country_time_series(vax_data_man):
     ).transform_filter(
     selection
     ).properties(
-    width=700,
-    height=350
+    width=1000,
+    height=600
     )
     return chart.to_json()
   
@@ -206,7 +206,7 @@ def hdi_vaccinations(df):
 
 ### State Covid data ###
 def state_vaccinations_per_hundred(state):
-  input_dropdown = alt.binding_select(options=list(state['location'].unique()), name = "select location")
+  input_dropdown = alt.binding_select(options=list(state['location'].unique()), name = "Select Location")
   selection1 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location', init={'location':'California'})
   #alt.binding_checkbox(fields=['location']) #, bind=input_dropdown, name='location' 
   #selection2 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location')
@@ -215,17 +215,17 @@ def state_vaccinations_per_hundred(state):
 
   chart = alt.Chart(state_bubble).mark_circle(size=100).encode(
       x=alt.X('monthdate(date):T', title='date'),
-      y=alt.Y('people_fully_vaccinated_per_hundred:Q',title = 'people fully vaccinated per hundred'),
+      y=alt.Y('people_fully_vaccinated_per_hundred:Q',title = 'People Fully Vaccinated'),
       # size='Elapsed_Time',
       # href='url:N',
       tooltip=["location", "people_fully_vaccinated_per_hundred"]
-  ).properties(title='State People Fully Vaccinated Per Hundred Rate Over Time').add_selection(
+  ).properties().add_selection(
     selection1
 ).transform_filter(
     selection1
 ).properties(
-    width=700,
-    height=400)
+    width=1000,
+    height=600)
   return chart.to_json()
 
 def state_map(state):
@@ -253,13 +253,14 @@ def state_map(state):
 
   source = alt.topo_feature(data.us_10m.url, 'states')
 
+
   map = alt.Chart(source).mark_geoshape().encode(
           color= alt.Color('people_fully_vaccinated_per_hundred:Q', title = "Percent Fully Vaccinated")
       ).transform_lookup(
       lookup='id',
-      from_=alt.LookupData(avg_data, 'id', ['people_fully_vaccinated_per_hundred'])).properties(title='State Map with Percent Fully Vaccinated',
-      width=700,
-      height=500
+      from_=alt.LookupData(avg_data, 'id', ['people_fully_vaccinated_per_hundred'])).properties(
+      width=1000,
+      height=600
   ).project(
       type='albersUsa')
   
