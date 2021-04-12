@@ -16,19 +16,21 @@ from web.utils.utils import get_by_country_merged
 #Graphs for Vaccination by manufacturer
 def altair_global_cases_per_country(vax_data_by_man):
     "Bar Chart of Days"
+    domain = ['Pfizer/BioNTech', "Moderna", "Johnson&Johnson", 'Oxford/AstraZeneca', 'Sinovac']
+    range_ = ['indianred', 'skyblue', 'turquoise', 'mediumvioletred', 'palevioletred']
     delta_days = []
     for row in vax_data_by_man['date']:
         delta_day = (row - min(vax_data_by_man['date'])).days
         delta_days.append(delta_day)
     vax_data_by_man = vax_data_by_man.assign(delta_days = delta_days)
-    slider = alt.binding_range(min=0, max=max(vax_data_by_man['delta_days']), step = 1,  name = 'Select Day Since First Vaccine ')
+    slider = alt.binding_range(min=0, max=max(vax_data_by_man['delta_days']), step = 1,  name = 'Select Days since December 24')
 
     selector = alt.selection_single(name = 'delta_days', fields = ['delta_days'],
                                bind=slider, init={'delta_days': 0})
     chart =  alt.Chart(vax_data_by_man, title = "Percent Vaccinated by Manufacturer over Time").mark_bar().encode(
         x='location',
         y=alt.Y('sum(percent_vaxes)', title = "Percent Vaccinated"),
-        color=alt.Color('vaccine:N')
+        color=alt.Color('vaccine:N', title = 'Vaccine', scale = alt.Scale(domain = domain, range = range_))
         ).properties(
         width=600,
         height=350
@@ -44,16 +46,18 @@ def altair_global_cases_per_country(vax_data_by_man):
 def altair_per_country_time_series(vax_data_man):
     "returns json for time series vaccinations"
     input_dropdown = alt.binding_select(options=['Germany','Iceland','Italy',
-                                             'Czechia', 'Latvia', 'Lithuania', 'Chile', 'United States'], name = 'Select Country ')
-    selection = alt.selection_single(fields=['location'], bind=input_dropdown, init={'location':'United States'})
-    color = alt.condition(selection,
-                    alt.Color('vaccine:N'),
-                    alt.value('lightgray'))
+                                             'Czechia', 'Latvia', 'Lithuania', 'Chile', 'United States', 'Romania'], name = 'Select Country ')
+    selection = alt.selection_single(fields=['location'], init={'location':'United States'}, bind=input_dropdown)
+    domain = ['Pfizer/BioNTech', "Moderna", "Johnson&Johnson", 'Oxford/AstraZeneca', 'Sinovac']
+    range_ = ['indianred', 'skyblue', 'turquoise', 'mediumvioletred', 'fuchsia']
+    # color = alt.condition(selection,
+    #                 alt.Color('vaccine:N'),
+    #                 alt.value('lightgray'))
 
     chart = alt.Chart(vax_data_man, title = "Percent of Population Vaccinated by Vaccine Type").mark_line().encode(
     x=alt.X('date:T', title= "Date"),
     y=alt.Y('percent_vaxes:Q', title = 'Percent of Population Vaccinated'),
-    color = color,
+    color = alt.Color('vaccine:N', title = 'Vaccine', scale = alt.Scale(domain = domain, range = range_)),
     tooltip='date:T'
         ).add_selection(
     selection
@@ -152,7 +156,7 @@ def hdi_vaccinations(df):
 
 ### State Covid data ###
 def state_vaccinations_per_hundred(state):
-  input_dropdown = alt.binding_select(options=list(state['location'].unique()))
+  input_dropdown = alt.binding_select(options=list(state['location'].unique()), name = "select location")
   selection1 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location', init={'location':'California'})
   #alt.binding_checkbox(fields=['location']) #, bind=input_dropdown, name='location' 
   #selection2 = alt.selection_single(fields=['location'], bind=input_dropdown, name='location')
@@ -210,6 +214,27 @@ def state_map(state):
       type='albersUsa')
   
   return map.to_json()
+
+
+def state_vaccinations_vs_distribution(state):
+    alt.data_transformers.disable_max_rows()
+    genres = ['Maryland', 'California']
+    genre_dropdown = alt.binding_select(options=genres)
+    genre_select = alt.selection_single(fields=['location'], bind=genre_dropdown, name="location")
+    base = alt.Chart(state).encode(x=alt.X('monthdate(date):O', title='date'))
+    bar = base.mark_bar().encode(y='total_vaccinations:Q')
+    filter_genres = base.add_selection(
+        genre_select
+        ).transform_filter(
+      genre_select
+        ).properties(title="Dropdown Filtering")
+    rule = alt.Chart(state).mark_rule(color='red').encode(x=alt.X('monthdate(date):O', title='date'),
+      y='total_distributed:Q'
+        )
+    final = (bar + rule).properties(title='State Total Vaccinations Administered vs State Vaccine Distribution',width=600).add_selection(genre_select).transform_filter(
+      genre_select
+  )
+    return final.to_json()
 
 
 
