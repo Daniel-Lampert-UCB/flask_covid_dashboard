@@ -79,10 +79,11 @@ def plot_altair_global():
 @app.route("/cases-deaths-vaccines")
 def plot_chartjs():
     #time_series = altair_plot.altair_per_country_time_series(vax_cases_by_man)
-    deaths_vax = altair_plot.vaccinations_deaths(owid_date)
-    date_vaccines = altair_plot.date_vaccinations(owid_date)
-    date_deaths = altair_plot.date_deaths(owid_date)
-    context = {'date_deaths': date_deaths, 'date_vaccines':date_vaccines, 'death_vax': deaths_vax}
+    #deaths_vax = altair_plot.vaccinations_deaths(owid_date)
+    #date_vaccines = altair_plot.date_vaccinations(owid_date)
+    #date_deaths = altair_plot.date_deaths(owid_date)
+    continent_graphs = altair_plot.date_deaths_cases_vaccinations(owid_date)
+    context = {'continent_graphs': continent_graphs}
     return render_template('chartjs.html', context=context)
 
 @app.route("/state-vaccines")

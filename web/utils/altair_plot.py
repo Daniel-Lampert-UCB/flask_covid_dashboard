@@ -78,7 +78,7 @@ def altair_global_cases_per_country(vax_data_by_man):
     selector = alt.selection_single(name = 'delta_days', fields = ['delta_days'],
                                bind=slider, init={'delta_days': 0})
     chart =  alt.Chart(vax_data_by_man).mark_bar().encode(
-        x='location',
+        x=alt.X('location', title = "Location"),
         y=alt.Y('sum(percent_vaxes)', title = "Percent Vaccinated"),
         color=alt.Color('vaccine:N', title = 'Vaccine', scale = alt.Scale(domain = domain, range = range_))
         ).properties(
@@ -215,7 +215,7 @@ def state_vaccinations_per_hundred(state):
 
   chart = alt.Chart(state_bubble).mark_circle(size=100).encode(
       x=alt.X('monthdate(date):T', title='date'),
-      y=alt.Y('people_fully_vaccinated_per_hundred:Q',title = 'People Fully Vaccinated'),
+      y=alt.Y('people_fully_vaccinated_per_hundred:Q',title = 'Percent Fully Vaccinated'),
       # size='Elapsed_Time',
       # href='url:N',
       tooltip=["location", "people_fully_vaccinated_per_hundred"]
@@ -229,42 +229,48 @@ def state_vaccinations_per_hundred(state):
   return chart.to_json()
 
 def state_map(state):
-
-  newest = max(state['date'])
-  recent = state[state['date'] == newest]
-  avg_data = recent[recent.location != 'American Samoa'] 
-  avg_data = avg_data[avg_data.location != 'Bureau of Prisons']
-  avg_data = avg_data[avg_data.location != 'Dept of Defense']
-  avg_data = avg_data[avg_data.location != 'Federated States of Micronesia']
-  avg_data = avg_data[avg_data.location != 'Guam']
-  avg_data = avg_data[avg_data.location != 'Indian Health Svc']
-  avg_data = avg_data[avg_data.location != 'Long Term Care']
-  avg_data = avg_data[avg_data.location != 'Marshall Islands']
-  avg_data = avg_data[avg_data.location != 'Northern Mariana Islands']
+    state['location'] = state['location'].replace(['New York State'],'New York')
+    newest = max(state['date'])
+    recent = state[state['date'] == newest]
+    avg_data = recent[recent.location != 'American Samoa']
+    avg_data = avg_data[avg_data.location != 'Bureau of Prisons']
+    avg_data = avg_data[avg_data.location != 'Dept of Defense']
+    avg_data = avg_data[avg_data.location != 'Federated States of Micronesia']
+    avg_data = avg_data[avg_data.location != 'Guam']
+    avg_data = avg_data[avg_data.location != 'Indian Health Svc']
+    avg_data = avg_data[avg_data.location != 'Long Term Care']
+    avg_data = avg_data[avg_data.location != 'Marshall Islands']
+    avg_data = avg_data[avg_data.location != 'Northern Mariana Islands']
   # avg_data = avg_data[avg_data.location != 'Puerto Rico']
-  avg_data = avg_data[avg_data.location != 'Republic of Palau']
-  avg_data = avg_data[avg_data.location != 'Veterans Health']
-  avg_data = avg_data[avg_data.location != 'Virgin Islands']
-  avg_data = avg_data[avg_data.location != 'United States']
-  avg_data = avg_data.groupby('location').mean()
+    avg_data = avg_data[avg_data.location != 'Republic of Palau']
+    avg_data = avg_data[avg_data.location != 'Veterans Health']
+    avg_data = avg_data[avg_data.location != 'Virgin Islands']
+    avg_data = avg_data[avg_data.location != 'United States']
+    avg_data = avg_data.groupby('location').mean()
+    avg_data['id'] = np.arange(len(avg_data)) + 1
+    avg_data['date'] = newest
+    example = pd.read_csv('https://raw.githubusercontent.com/vega/vega/master/docs/data/population_engineers_hurricanes.csv')
+    result = pd.merge(left=avg_data, right=example, how='left', left_on='location', right_on='state')
+    source = alt.topo_feature(data.us_10m.url, 'states')
+    capitals = data.us_state_capitals.url
+    map = alt.Chart(source).mark_geoshape().encode(
+            color=alt.condition('datum.people_fully_vaccinated_per_hundred !== null','people_fully_vaccinated_per_hundred:Q', alt.value('lightgray'), title = "Percent Fully Vaccinated")
+        ,tooltip =
+        [alt.Tooltip('state:N'),
+          alt.Tooltip('people_fully_vaccinated_per_hundred:Q'), alt.Tooltip('date:O'),
+        ]).transform_lookup(
+        lookup='id',
+        from_=alt.LookupData(result, 'id_y', ['people_fully_vaccinated_per_hundred','state','date'])).properties(
+        width=1000,
+        height=600).project(
+        type='albersUsa')
+    background = alt.Chart(source).mark_geoshape(
+      fill='lightgray',
+      stroke='white'
+    ).project('albersUsa')
 
-  avg_data['id'] = np.arange(len(avg_data)) + 1
+    return map.to_json()
 
-
-  source = alt.topo_feature(data.us_10m.url, 'states')
-
-
-  map = alt.Chart(source).mark_geoshape().encode(
-          color= alt.Color('people_fully_vaccinated_per_hundred:Q', title = "Percent Fully Vaccinated")
-      ).transform_lookup(
-      lookup='id',
-      from_=alt.LookupData(avg_data, 'id', ['people_fully_vaccinated_per_hundred'])).properties(
-      width=1000,
-      height=600
-  ).project(
-      type='albersUsa')
-  
-  return map.to_json()
 
 
 def state_vaccinations_vs_distribution(state):
@@ -383,5 +389,70 @@ def vax_cases(df):
             ),  color = 'continent'
         ).interactive()
     return k.to_json()
+
+
+### New graph for continent page ###
+def date_deaths_cases_vaccinations(df):
+    #url='https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv'
+    #df = pd.read_csv(url)
+    df = df.dropna(subset=['total_deaths', 'total_tests'])
+
+    df = df.sort_values('date')
+    vf = df[df['date'] > '2020-12-05']
+    vf
+
+    val = 0
+    dates = df['date'].tolist()
+    count = 0
+    list_day = []
+    for i in range(df.shape[0]):
+      if dates[i] != val:
+        val = dates[i]
+        list_day.append(count)
+        count += 1
+      else:
+        list_day.append(count)
+
+    df['days_after_2-13-21'] = list_day
+    df = df[df['days_after_2-13-21'] % 7 == 0]
+    cf = df[df['date'] > '2020-12-05']
+
+
+
+    input_dropdown = alt.binding_select(options=['Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'], name = 'Select Continent ')
+    selection = alt.selection_single(fields=['continent'], bind=input_dropdown, name='Displayed ')
+    color = alt.condition(selection,
+                        alt.Color('continent:N'),
+                        alt.value('lightgray'))
+
+    l = alt.Chart(df).mark_line().encode(
+    alt.X('date:T', title = 'Date'),
+       alt.Y('mean(new_deaths_smoothed_per_million):Q', title = 'New Deaths per Million'),
+       color = color,
+        tooltip='Name:N'
+    ).add_selection(
+        selection
+    ).properties(width=400, height=400)
+
+    m = alt.Chart(df).mark_line().encode(
+    alt.X('date:T', title = 'Date'),
+       alt.Y('mean(new_cases_smoothed_per_million):Q', title = 'New Cases per Million'),
+       color = color,
+        tooltip='Name:N'
+    ).add_selection(
+        selection
+    ).properties(width=400, height=400)
+
+    n = alt.Chart(cf).mark_line().encode(
+    alt.X('date:T', title = 'Date'),
+       alt.Y('mean(new_vaccinations_smoothed_per_million):Q', title = 'New Vaccinations per Million'),
+       color = color,
+        tooltip='Name:N'
+    ).add_selection(
+        selection
+    ).properties(width=400, height=400)
+    charts =  l | m | n
+    #charts
+    return charts.to_json()
 
 

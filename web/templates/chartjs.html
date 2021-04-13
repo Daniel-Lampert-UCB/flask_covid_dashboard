@@ -12,31 +12,17 @@ put your custom script or styling here
 <!-- Altair plot placeholder -->
 <div class="container-fluid">
     <div class="row" style="justify-content: center">
-        <div class="col-12" style="justify-content: center">
+        <div style="text-align:center" class="col-12" style="justify-content: center">
+            <h1 style="font-size:70px;">COVID-19 by Continent</h1>
+            <p>&nbsp;</p> 
+            <p></p> 
             <!-- Placeholder for map-->
-            <h2>What are the trends in COVID-19 deaths by continent?</h2>
-            <p>This graph aims to show what are the trends in COVID-19 deaths.</p>
-            <div id="date-deaths"></div>
+            <h2>What are the trends in COVID-19 cases, deaths, and vaccines by continent?</h2>
+            <p style="font-size:22px;">Use the toggle tool to shuffle between continents.</p>
+            <div id="continent-graphs"></div>
         </div>
     </div>
-    <div class="row" style="margin-top: 20px">
-        <div class="col-12" style="justify-content: center">
-            <!-- Placeholder for the global-cases plot-->
-            <h2>What are the continental trends of vaccination?</h2>
-            <p>This graph shows the temporal trends of vaccination</p>
-            <div id="date-vacines"></div>
-        </div>
-    </div>
-
-    <div class="row" style="justify-content: center">
-        <div class="col-12" style="justify-content: center">
-            <!-- Placeholder for map-->
-            <h2>What is the relationship between vaccinations and deaths?</h2>
-            <p>Are vaccines lowering deaths as espected?</p>
-            <div id="global-cases"></div>
-        </div>
-    </div>
-    </div>
+</div>
 
 
 
@@ -55,8 +41,6 @@ put your custom script or styling here
         });
     }
     //Parse your Json variable here
-    parse({{ context.date_deaths | safe }}, "date-deaths")
-    parse({{ context.date_vaccines | safe }}, "date-vacines")
-    parse({{ context.death_vax | safe }}, "global-cases");
+    parse({{ context.continent_graphs | safe }}, "continent-graphs");
 </script>
 {% endblock my_content %}
